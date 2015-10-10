@@ -12,8 +12,17 @@ class DeviceRegistryTest(unittest.TestCase):
         self.assertNotEqual(device.description, "")
 
 
+class DeviceTypeTest(unittest.TestCase):
+    def test_device_registry_should_return_devices_with_valid_device_types(self):
+        registry = itk.DeviceRegistry()
+        devices = registry.registeredDevices()
+        for device in devices:
+            self.assertTrue(device.deviceType == itk.DeviceType.Audio or
+                            device.deviceType == itk.DeviceType.Control)
+
 testSuite = unittest.TestSuite()
 testSuite.addTest(unittest.makeSuite(DeviceRegistryTest))
+testSuite.addTest(unittest.makeSuite(DeviceTypeTest))
 
 if __name__ == "__main__":
     unittest.main()
