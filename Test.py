@@ -20,6 +20,18 @@ class DeviceTypeTest(unittest.TestCase):
             self.assertTrue(device.deviceType == itk.DeviceType.Audio or
                             device.deviceType == itk.DeviceType.Control)
 
+
+class DeviceGraphAddDevice(unittest.TestCase):
+    def test_add_device_to_device_graph(self):
+        registry = itk.DeviceRegistry()
+        device = registry.registeredDevices()[3]
+        device_graph = itk.DeviceGraph.create()
+        node_id = device_graph.add_device(device)
+        self.assertEqual(node_id, 0)
+        device = registry.registeredDevices()[6]
+        node_id = device_graph.add_device(device)
+        self.assertEqual(node_id, 1)
+
 testSuite = unittest.TestSuite()
 testSuite.addTest(unittest.makeSuite(DeviceRegistryTest))
 testSuite.addTest(unittest.makeSuite(DeviceTypeTest))
