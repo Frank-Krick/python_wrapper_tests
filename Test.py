@@ -1,19 +1,19 @@
 import unittest
 import itk
 
+
 class DeviceRegistryTest(unittest.TestCase):
-    def test_device_registry_should_return_devices(self):
+    def test_device_registry_should_return_at_least_one_valid_device(self):
         registry = itk.DeviceRegistry()
         devices = registry.registeredDevices()
-        print(devices)
+        self.assertGreater(len(devices), 0)
+        device = devices[6]
+        self.assertIsNotNone(device.name)
+        self.assertNotEqual(device.description, "")
 
-class Test(unittest.TestCase):
-    def test_test_test(self):
-        self.assertTrue(1 == 2, "sucker")
 
 testSuite = unittest.TestSuite()
 testSuite.addTest(unittest.makeSuite(DeviceRegistryTest))
-testSuite.addTest(unittest.makeSuite(Test))
 
 if __name__ == "__main__":
     unittest.main()
