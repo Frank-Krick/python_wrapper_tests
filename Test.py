@@ -61,11 +61,25 @@ class DeviceGraphConnectControlDevice(unittest.TestCase):
         self.assertTrue(device_graph.is_connected(source, target, 0))
 
 
+class DeviceGraphDescribeDevices(unittest.TestCase):
+    def test_device_graph_describes_included_devices(self):
+        registry = itk.DeviceRegistry()
+        devices = registry.registeredDevices()
+        device_graph = itk.DeviceGraph()
+        for device in devices:
+            device.id = device_graph.add_device(device)
+        self.assertEqual(len(device_graph.devices), len(devices))
+        device_ids_one = map(lambda x: x.id, devices).sort()
+        device_ids_two = map(lambda x: x.deviceId, device_graph.devices).sort()
+        self.assertEqual(device_ids_one, device_ids_two)
+
+
 testSuite = unittest.TestSuite()
 testSuite.addTest(unittest.makeSuite(DeviceRegistryTest))
 testSuite.addTest(unittest.makeSuite(DeviceTypeTest))
 testSuite.addTest(unittest.makeSuite(DeviceGraphConnectAudioDevice))
 testSuite.addTest(unittest.makeSuite(DeviceGraphConnectControlDevice))
+testSuite.addTest(unittest.makeSuite(DeviceGraphDescribeDevices))
 
 
 if __name__ == "__main__":
