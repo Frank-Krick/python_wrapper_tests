@@ -69,9 +69,65 @@ class DeviceGraphDescribeDevices(unittest.TestCase):
         for device in devices:
             device.id = device_graph.add_device(device)
         self.assertEqual(len(device_graph.devices), len(devices))
-        device_ids_one = map(lambda x: x.id, devices).sort()
-        device_ids_two = map(lambda x: x.deviceId, device_graph.devices).sort()
+        device_ids_one = map(lambda x: x.id, devices)
+        device_ids_one.sort()
+        device_ids_two = map(lambda x: x.deviceId, device_graph.devices)
+        device_ids_two.sort()
         self.assertEqual(device_ids_one, device_ids_two)
+
+
+class DeviceGraphReturnConnections(unittest.TestCase):
+    def test_device_graph_should_return_connections(self):
+        registry = itk.DeviceRegistry()
+        devices = registry.registeredDevices()
+        audio_devices = [device for device in devices if device.deviceType == itk.DeviceType.Audio]
+        control_devices = [device for device in devices if device.deviceType == itk.DeviceType.Control]
+        audio_device = audio_devices[0]
+        control_device = control_devices[0]
+        device_graph = itk.DeviceGraph()
+        audio_device_ids = [
+            device_graph.add_device(audio_device),
+            device_graph.add_device(audio_device),
+            device_graph.add_device(audio_device),
+            device_graph.add_device(audio_device),
+            device_graph.add_device(audio_device),
+        ]
+        control_device_ids = [
+            device_graph.add_device(control_device),
+            device_graph.add_device(control_device),
+            device_graph.add_device(control_device),
+            device_graph.add_device(control_device),
+            device_graph.add_device(control_device),
+        ]
+        expected_control = [
+            (control_device_ids[0], audio_device_ids[0], 0),
+            (control_device_ids[1], audio_device_ids[1], 0),
+            (control_device_ids[2], audio_device_ids[2], 0),
+            (control_device_ids[1], audio_device_ids[3], 0),
+            (control_device_ids[2], audio_device_ids[2], 0),
+            (control_device_ids[3], audio_device_ids[3], 0),
+        ]
+        for edge in expected_control:
+            device_graph.connect(edge[0], edge[1], edge[2])
+        expected_audio = [
+            (audio_device_ids[0], audio_device_ids[1]),
+            (audio_device_ids[1], audio_device_ids[2]),
+            (audio_device_ids[0], audio_device_ids[3]),
+            (audio_device_ids[3], audio_device_ids[2]),
+            (audio_device_ids[3], audio_device_ids[4]),
+        ]
+        for edge in expected_audio:
+            device_graph.connect(edge[0], edge[1])
+        actual_return_audio = device_graph.audioConnections
+        actual_audio = map(lambda x: (x.source, x.target), actual_return_audio)
+        actual_audio.sort()
+        expected_audio.sort()
+        self.assertEqual(actual_audio, expected_audio)
+        actual_return_control = device_graph.controlConnections
+        actual_control = map(lambda x: (x.source, x.target, x.parameter), actual_return_control)
+        actual_control.sort()
+        expected_control.sort()
+        self.assertEqual(expected_control, actual_control)
 
 
 testSuite = unittest.TestSuite()
@@ -80,7 +136,7 @@ testSuite.addTest(unittest.makeSuite(DeviceTypeTest))
 testSuite.addTest(unittest.makeSuite(DeviceGraphConnectAudioDevice))
 testSuite.addTest(unittest.makeSuite(DeviceGraphConnectControlDevice))
 testSuite.addTest(unittest.makeSuite(DeviceGraphDescribeDevices))
-
+testSuite.addTest(unittest.makeSuite(DeviceGraphReturnConnections))
 
 if __name__ == "__main__":
     unittest.main()
