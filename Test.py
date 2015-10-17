@@ -74,7 +74,10 @@ class DeviceGraphDescribeDevices(unittest.TestCase):
         device_ids_two = map(lambda x: x.deviceId, device_graph.devices)
         device_ids_two.sort()
         self.assertEqual(device_ids_one, device_ids_two)
-
+        for device in device_graph.devices:
+            actual = device_graph.device(device.deviceId)
+            self.assertEqual(device.name, actual.name)
+            self.assertEqual(device.device.deviceType, actual.device.deviceType)
 
 class DeviceGraphReturnConnections(unittest.TestCase):
     def test_device_graph_should_return_connections(self):
